@@ -1,23 +1,41 @@
-import logo from './logo.svg';
 import './App.css';
+import { Route, Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 
-function App() {
+import Recipe from './components/recipe';
+import RecipeList from './components/recipeList';
+
+const App = () => {
+  const [recipes, setRecipes] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:3001/recipes", 
+        {
+            method: "get",
+            mode: "cors" 
+        }
+    )
+    .then(res => res.json())
+    .then(res => setRecipes(res))
+    .catch(err => console.log(err));
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+      <header>
+        <Link to="/">Home</Link>
       </header>
+      <div className='content'>
+        <Route exact path ="/" render={props => (
+          <RecipeList recipes={recipes} />
+        )} />
+        <Route 
+          path="/ingredients/:recipeId" 
+          render={props => (
+            <Recipe recipeId={props.match.params.recipeId} recipes={recipes}/>
+          )}
+        />
+      </div>
     </div>
   );
 }
